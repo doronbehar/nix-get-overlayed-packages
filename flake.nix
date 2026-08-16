@@ -44,14 +44,12 @@
         # new packages). Suitable directly as (part of) a flake's
         # `packages.<system>` output.
         getOverlayedPackages =
-          {
-            nixpkgs,
-            system,
-            overlays,
-            config ? { },
-          }:
+          { overlays, nixpkgs, ... }@args:
           let
-            pkgs = import nixpkgs { inherit system overlays config; };
+            # Everything but nixpkgs itself (system, overlays, config,
+            # crossSystem, ...) is passed straight through to `import
+            # nixpkgs`, whatever it happens to be.
+            pkgs = import nixpkgs (removeAttrs args [ "nixpkgs" ]);
           in
           nixpkgs-lib.lib.pipe overlays [
             # Extract attribute names from each overlay. Calling each

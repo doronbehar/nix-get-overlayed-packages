@@ -76,4 +76,16 @@ in
 
 ### `getOverlayedPackages`
 
-Applies `overlays` on top of `nixpkgs` for the given `system` (and optional nixpkgs `config`), then returns an attribute set of these packages. 
+Applies `overlays` on top of `nixpkgs`, then returns an attribute set of these packages.
+
+`overlays` and `nixpkgs` are the only arguments this function looks at itself -- everything else (`system`, `config`, `crossSystem`, ...) is passed straight through to `import nixpkgs`, so it works unmodified for cross-compiled package sets too:
+
+```nix
+nix-get-overlayed-packages.lib.getOverlayedPackages {
+  inherit nixpkgs overlays;
+  system = "x86_64-linux";
+  crossSystem = "armv7l-linux";
+}
+```
+
+returns armv7l-linux derivations, buildable from an x86_64-linux machine, same as `import nixpkgs { system = "x86_64-linux"; crossSystem = "armv7l-linux"; overlays = [...]; }` would. 
